@@ -41,5 +41,5 @@ class MathQAPython(torch.utils.data.Dataset):
                 }
 
 
-    def __len(self): 
+    def __len__(self): 
         return len(self.data)

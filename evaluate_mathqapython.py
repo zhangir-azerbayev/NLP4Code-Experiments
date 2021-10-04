@@ -1,5 +1,7 @@
 import sys
 
+from torch.utils.data import DataLoader
+
 from transformers import RobertaTokenizer, T5ForConditionalGeneration
 from dataloader import read_mathqapython, MathQAPython 
 
@@ -15,7 +17,12 @@ else:
 
 test_set = MathQAPython(data, tokenizer, 256, 256)
 
-instance = next(enumerate(test_set))[1]
+loader = DataLoader(test_set, batch_size = 1, shuffle=True)
+
+for batch in loader: 
+    instance = batch
+    break 
+
 print(instance)
 
 ids = instance['text_ids']
@@ -27,7 +34,7 @@ generated_ids = model.generate(
         )
 
 div = '#'*20 
-
+print(ids)
 print('text\n', tokenizer.decode(ids, skip_special_tokens=False))
 print(div)
 print('dataloader output: \n', instance)
