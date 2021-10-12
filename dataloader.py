@@ -24,22 +24,15 @@ class MathQAPython(torch.utils.data.Dataset):
         code = instance['code']
         answer = instance['answer']
 
-        text_encode = self.tokenizer.batch_encode_plus(text, max_length = self.text_len, pad_to_max_length=True, return_tensors='pt')
-        code_encode = self.tokenizer.batch_encode_plus(code, max_length = self.code_len, pad_to_max_length=True, return_tensors='pt')
-
+        text_encode = self.tokenizer(text, max_length=self.text_len, 
+                                     padding='max_length', return_tensors='pt')
+        code_encode = self.tokenizer(code, max_length=self.code_len, 
+                                     padding='max_length', return_tensors='pt')
         text_ids = text_encode['input_ids'].squeeze()
-        text_mask = text_encode['attention_mask'].squeeze()
         code_ids = code_encode['input_ids'].squeeze()
-        code_mask = code_encode['attention_mask'].squeeze()
 
-        return {
-                'text_ids': text_ids.to(dtype=torch.long), 
-                'text_mask': text_mask.to(dtype=torch.long), 
-                'code_ids': code_ids.to(dtype=torch.long), 
-                'code_mask': code_mask.to(dtype=torch.long), 
-                'answer': answer
-                }
+        return text_ids.to(dtype=torch.long), code_ids.to(dtype=torch.long), answer
 
 
     def __len__(self): 
-        return len(self.data)
+        return len(self.data) 
