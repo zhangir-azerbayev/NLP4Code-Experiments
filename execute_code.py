@@ -41,7 +41,10 @@ def semisafe_evaluate(completion: str, key : str, timeout : float):
                 with swallow_io():
                     with time_limit(timeout):
                          exec(code, exec_globals)
-                result.append(exec_globals[key])
+                if key in exec_globals.keys(): 
+                    result.append(exec_globals[key])
+                else: 
+                    result.append("answer not computed")
             except TimeoutException:
                 result.append("timed out")
             except BaseException as e:

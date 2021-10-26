@@ -11,11 +11,10 @@ def read_mathqapython(path):
     return mathqapython_list
 
 class MathQAPython(torch.utils.data.Dataset): 
-    def __init__(self, instance_list, tokenizer, text_len, code_len): 
+    def __init__(self, instance_list, tokenizer, max_length): 
         self.data = instance_list 
         self.tokenizer = tokenizer 
-        self.text_len = text_len
-        self.code_len = code_len
+        self.max_length = max_length
     
 
     def __getitem__(self, idx): 
@@ -24,10 +23,12 @@ class MathQAPython(torch.utils.data.Dataset):
         code = instance['code']
         answer = instance['answer']
 
-        text_encode = self.tokenizer(text, max_length=self.text_len, 
-                                     padding='max_length', return_tensors='pt')
-        code_encode = self.tokenizer(code, max_length=self.code_len, 
-                                     padding='max_length', return_tensors='pt')
+        text_encode = self.tokenizer(text, 
+                max_length=self.max_length, 
+                padding='max_length', return_tensors='pt')
+        code_encode = self.tokenizer(code, 
+                max_length=self.max_length, 
+                padding='max_length', return_tensors='pt')
         text_ids = text_encode['input_ids'].squeeze()
         code_ids = code_encode['input_ids'].squeeze()
 
