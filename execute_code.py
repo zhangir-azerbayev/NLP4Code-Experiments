@@ -14,8 +14,7 @@ import tempfile
 
 def semisafe_evaluate(completion: str, key : str, timeout : float):
     """
-    Evaluates the functional correctness of a completion by running the test
-    suite provided in the problem. 
+    Evaluates a code completion with some added safety features. 
 
     Returns a float if code succesfully executes. Returns a string describing 
     error if code is unsuccesfull. 
