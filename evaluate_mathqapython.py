@@ -60,7 +60,7 @@ print("doing evaluation loop")
 num_correct = 0 
 no_errors = 0 
 for batch in tqdm(loader): 
-    input_ids, code_sol, answer_sol = batch 
+    input_ids, mask, code_sol, answer_sol = batch 
 
     # Removes padding tokens 
     input_ids = torch.unsqueeze(input_ids[~ (input_ids==tokenizer.eos_token_id)], 0)
@@ -109,11 +109,13 @@ for batch in tqdm(loader):
     to_dump += "PROMPT: \n"
     to_dump += tokenizer.decode(full_ids.squeeze(), skip_special_tokens=True)
     to_dump += "\nGENERATED COMPLETION: \n" 
-    to_dump += program 
+    to_dump += program
     to_dump += "\nLABEL COMPLETION:\n"
     to_dump += tokenizer.decode(code_sol.squeeze(), skip_special_tokens=True)
     to_dump += "\nANSWER: " + str(answer) + "\n"
     to_dump += "\nLABEL ANSWER: " + str(answer_sol.item()) + "\n"
+
+    break 
 
 
     

@@ -30,9 +30,10 @@ class MathQAPython(torch.utils.data.Dataset):
                 max_length=self.max_length, 
                 padding='max_length', return_tensors='pt')
         text_ids = text_encode['input_ids'].squeeze()
+        text_attn = text_encode['attention_mask'].squeeze()
         code_ids = code_encode['input_ids'].squeeze()
 
-        return text_ids.to(dtype=torch.long), code_ids.to(dtype=torch.long), answer
+        return text_ids.to(dtype=torch.long), text_attn.long(), code_ids.to(dtype=torch.long), answer
 
 
     def __len__(self): 
