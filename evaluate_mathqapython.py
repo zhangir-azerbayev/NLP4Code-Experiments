@@ -115,7 +115,6 @@ for batch in tqdm(loader):
     to_dump += "\nANSWER: " + answer + "\n"
     to_dump += "\nLABEL ANSWER: " + str(answer_sol.item()) + "\n"
 
-    break 
 
     
 accuracy = num_correct / len(data) 
