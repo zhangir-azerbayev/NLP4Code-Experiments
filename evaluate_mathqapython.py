@@ -112,7 +112,7 @@ for batch in tqdm(loader):
     to_dump += program 
     to_dump += "\nLABEL COMPLETION:\n"
     to_dump += tokenizer.decode(code_sol.squeeze(), skip_special_tokens=True)
-    to_dump += "\nANSWER: " + answer + "\n"
+    to_dump += "\nANSWER: " + str(answer) + "\n"
     to_dump += "\nLABEL ANSWER: " + str(answer_sol.item()) + "\n"
 
 
