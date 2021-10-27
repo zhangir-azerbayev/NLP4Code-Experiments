@@ -16,6 +16,8 @@ from dataloader import read_mathqapython, MathQAPython
 
 from execute_code import semisafe_evaluate
 
+to_dump = ""
+
 experiment_name = sys.argv[1]
 few_shot = int(sys.argv[2])
 data_path = sys.argv[3]
@@ -56,8 +58,12 @@ else:
 # Evaluation loop
 print("doing evaluation loop")
 num_correct = 0 
+no_errors = 0 
 for batch in tqdm(loader): 
     input_ids, code_sol, answer_sol = batch 
+
+    # Removes padding tokens 
+    input_ids = torch.unsqueeze(input_ids[~ (input_ids==tokenizer.eos_token_id)], 0)
 
     # Makes few shot prompt if in few-shot regime 
     encoded_few_shot_prompt = tokenizer("", return_tensors="pt")['input_ids']
@@ -65,8 +71,8 @@ for batch in tqdm(loader):
     if few_shot == 1: 
         while True: 
             idx = random.randrange(train_size) 
-            example = "\n\n" + "\n".join([raw_train_data[idx]['text'], 
-                raw_train_data[idx]['code']])
+            example = "\n".join([raw_train_data[idx]['text'], 
+                raw_train_data[idx]['code']]) + "\n\n"
             tokenized_example = tokenizer(example, return_tensors="pt")['input_ids']
             longer_encoded_few_shot_prompt = torch.cat([encoded_few_shot_prompt, 
                 tokenized_example], axis=1)
@@ -81,7 +87,8 @@ for batch in tqdm(loader):
         input_ids=full_ids.long(), 
         do_sample=True, 
         temperature=0.4, 
-        max_length=2048
+        max_length=2048, 
+        pad_token_id=tokenizer.eos_token_id
     )
 
     # Isolate one program completion 
@@ -95,33 +102,29 @@ for batch in tqdm(loader):
     if answer is float: 
         if abs(answer - answer_sol) / answer < 0.01: 
             num_correct += 1
+        no_errors += 1
 
     # Writes results to a file
-    with open(output_file, "w") as fle: 
-        fle.write("#"*20)
-        fle.write("prompt:")
-        fle.write(tokenizer.decode(full_ids.squeeze()))
-        fle.write("completion: ")
-        fle.write(program)
-        fle.write("gt completion: ")
-        fle.write(tokenizer.decode(code_sol.squeeze()))
-        fle.write("answer: " + answer)
-        fle.write("label answer: " + str(answer_sol.item()))
+    to_dump += "\n" + "#"*20 + "\n"
+    to_dump += "PROMPT: \n"
+    to_dump += tokenizer.decode(full_ids.squeeze(), skip_special_tokens=True)
+    to_dump += "\nGENERATED COMPLETION: \n" 
+    to_dump += program 
+    to_dump += "\nLABEL COMPLETION:\n"
+    to_dump += tokenizer.decode(code_sol.squeeze(), skip_special_tokens=True)
+    to_dump += "\nANSWER: " + answer + "\n"
+    to_dump += "\nLABEL ANSWER: " + str(answer_sol.item()) + "\n"
+
+    break 
 
     
 accuracy = num_correct / len(data) 
+execution_rate = no_errors / len(data)
 
-with open(output_file, "w") as fle: 
-    fle.write(str(accuracy))
+to_dump += "\n" + "ACCURACY: " + str(accuracy) 
+to_dump += "\nEXECUTION_RATE: " + str(execution_rate) 
+
+with open(output_file, "a") as fle: 
+    fle.write(to_dump)
 
 print(accuracy)
-    
-
-
-
-
-
-
-
-
-

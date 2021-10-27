@@ -40,7 +40,7 @@ def semisafe_evaluate(completion: str, key : str, timeout : float):
                 exec_globals = {}
                 with swallow_io():
                     with time_limit(timeout):
-                         exec(code, exec_globals)
+                         exec(completion, exec_globals)
                 if key in exec_globals.keys(): 
                     result.append(exec_globals[key])
                 else: 
