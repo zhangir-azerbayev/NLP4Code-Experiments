@@ -63,44 +63,56 @@ for batch in tqdm(loader):
     input_ids, mask, code_sol, answer_sol = batch 
 
     # Removes padding tokens 
-    input_ids = torch.unsqueeze(input_ids[~ (input_ids==tokenizer.eos_token_id)], 0)
+    input_ids = torch.unsqueeze(input_ids[~(input_ids==tokenizer.eos_token_id)], 0)
 
-    # Makes few shot prompt if in few-shot regime 
     encoded_few_shot_prompt = tokenizer("", return_tensors="pt")['input_ids']
 
+    # Makes few shot prompt if in few-shot regime 
     if few_shot == 1: 
-        while True: 
-            idx = random.randrange(train_size) 
-            example = "\n".join([raw_train_data[idx]['text'], 
-                raw_train_data[idx]['code']]) + "\n\n"
-            tokenized_example = tokenizer(example, return_tensors="pt")['input_ids']
-            longer_encoded_few_shot_prompt = torch.cat([encoded_few_shot_prompt, 
-                tokenized_example], axis=1)
-            if torch.numel(longer_encoded_few_shot_prompt) <= max_prompt_length:
-                encoded_few_shot_prompt = longer_encoded_few_shot_prompt
-            else: 
-                break 
+        idxs = random.sample(range(train_size), 2)
+        few_shot_prompt = "\n\n".join([raw_train_data[idx]['text'] + "\n" + 
+            raw_train_data[idx]['code'] for idx in idxs]) + "\n\n"
+        encoded_few_shot_prompt = tokenizer.encode(few_shot_prompt, 
+                return_tensors="pt")
+    
+    # comment previous and uncomment this block to make 
+    # maximally long few-shot prompts
+    # 
+    # if few_shot == 1: 
+    #     while True: 
+    #         idx = random.randrange(train_size) 
+    #         example = "\n".join([raw_train_data[idx]['text'], 
+    #             raw_train_data[idx]['code']]) + "\n\n"
+    #         tokenized_example = tokenizer(example, return_tensors="pt")['input_ids']
+    #         longer_encoded_few_shot_prompt = torch.cat([encoded_few_shot_prompt, 
+    #             tokenized_example], axis=1)
+    #         if torch.numel(longer_encoded_few_shot_prompt) <= max_prompt_length:
+    #             encoded_few_shot_prompt = longer_encoded_few_shot_prompt
+    #         else: 
+    #             break 
     
     # Generate outputs
+    # Setting max_new_tokens=256 captures all but ~10 training examples
     full_ids = torch.cat([encoded_few_shot_prompt, input_ids], axis=1).to(device)
     generated_ids = model.generate(
         input_ids=full_ids.long(), 
         do_sample=True, 
-        temperature=0.4, 
-        max_length=2048, 
-        pad_token_id=tokenizer.eos_token_id
+        temperature=0.2, 
+        max_new_tokens=256, 
+        #pad_token_id=tokenizer.eos_token_id
     )
 
     # Isolate one program completion 
     start_idx = encoded_few_shot_prompt.size()[1]
     completion = tokenizer.decode(generated_ids[0, start_idx:])
-    if re.search('answer.*?\n', completion): 
-        program = completion[:re.search('answer.*?\n', completion).span()[1]]
+    answer_locs = re.search('answer.*?\n', completion)
+    if answer_locs: 
+        program = completion[:answer_locs.span()[1]]
     else: 
         program = completion 
     answer = semisafe_evaluate(program, 'answer', 1)
     if answer is float: 
-        if abs(answer - answer_sol) / answer < 0.01: 
+        if abs((answer - answer_sol) / answer) < 0.01: 
             num_correct += 1
         no_errors += 1
 
@@ -109,7 +121,7 @@ for batch in tqdm(loader):
     to_dump += "PROMPT: \n"
     to_dump += tokenizer.decode(full_ids.squeeze(), skip_special_tokens=True)
     to_dump += "\nGENERATED COMPLETION: \n" 
-    to_dump += program
+    to_dump += completion
     to_dump += "\nLABEL COMPLETION:\n"
     to_dump += tokenizer.decode(code_sol.squeeze(), skip_special_tokens=True)
     to_dump += "\nANSWER: " + str(answer) + "\n"
