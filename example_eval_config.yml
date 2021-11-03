@@ -1,9 +1,9 @@
-experiment_name: example
+experiment_name: 2point7B_pass8_dev
 few_shot: 1 
 data_path: data/mathqapython_dev.json 
 model_path: 0 # Set to 0 if doing few shot 
 param_count: 2.7B #125M, 1.3B, or 2.7B
 device: cuda:0 
-pass_at: 10
+pass_at: 8
 temp: 0.2
 
