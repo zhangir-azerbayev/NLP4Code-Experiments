@@ -1,6 +1,9 @@
 import sys
 import re
 import random
+import yaml
+import json
+import os
 from tqdm import tqdm 
 random.seed(1)
 
@@ -18,21 +21,27 @@ from execute_code import semisafe_evaluate
 
 to_dump = ""
 
-experiment_name = sys.argv[1]
-few_shot = int(sys.argv[2])
-data_path = sys.argv[3]
-model_path = sys.argv[4]
-param_count = sys.argv[5]
-device = sys.argv[6]
-output_file = sys.argv[7]
+config_path = sys.argv[1]
+
+with open(config_path, "r") as f: 
+    cfg = yaml.safe_load(f) 
+
+experiment_name = cfg['experiment_name']
+few_shot = cfg['few_shot']
+data_path = cfg['data_path']
+model_path = cfg['model_path']
+param_count = cfg['param_count']
+device = cfg['device']
+
+os.mkdir("results/" + experiment_name)
 
 model_name = "EleutherAI/gpt-neo-{}".format(param_count)
 
 
 # maximum token length of text/code, and few_shot_prompt
-# Derived from train set
-max_length = 474
-max_prompt_length = 1387
+# max_length = 256 works for almost everything 
+max_length = 256
+max_prompt_length = 1387 # not currently in use
 
 # Load data 
 print("loading data")
@@ -69,7 +78,7 @@ for batch in tqdm(loader):
 
     # Makes few shot prompt if in few-shot regime 
     if few_shot == 1: 
-        idxs = random.sample(range(train_size), 2)
+        idxs = random.sample(range(train_size), 3)
         few_shot_prompt = "\n\n".join([raw_train_data[idx]['text'] + "\n" + 
             raw_train_data[idx]['code'] for idx in idxs]) + "\n\n"
         encoded_few_shot_prompt = tokenizer.encode(few_shot_prompt, 
@@ -99,7 +108,7 @@ for batch in tqdm(loader):
         do_sample=True, 
         temperature=0.2, 
         max_new_tokens=256, 
-        #pad_token_id=tokenizer.eos_token_id
+        pad_token_id=tokenizer.eos_token_id
     )
 
     # Isolate one program completion 
@@ -120,11 +129,11 @@ for batch in tqdm(loader):
     to_dump += "\n" + "#"*20 + "\n"
     to_dump += "PROMPT: \n"
     to_dump += tokenizer.decode(full_ids.squeeze(), skip_special_tokens=True)
-    to_dump += "\nGENERATED COMPLETION: \n" 
+    to_dump += "\n\nGENERATED COMPLETION: \n" 
     to_dump += completion
-    to_dump += "\nLABEL COMPLETION:\n"
+    to_dump += "\n\nLABEL COMPLETION:\n"
     to_dump += tokenizer.decode(code_sol.squeeze(), skip_special_tokens=True)
-    to_dump += "\nANSWER: " + str(answer) + "\n"
+    to_dump += "\n\nANSWER: " + str(answer) + "\n"
     to_dump += "\nLABEL ANSWER: " + str(answer_sol.item()) + "\n"
 
     break 
@@ -134,10 +143,19 @@ for batch in tqdm(loader):
 accuracy = num_correct / len(data) 
 execution_rate = no_errors / len(data)
 
-to_dump += "\n" + "ACCURACY: " + str(accuracy) 
-to_dump += "\nEXECUTION_RATE: " + str(execution_rate) 
+metrics = {
+        "accuracy": accuracy, 
+        "execution_rate": execution_rate
+        }
 
-with open(output_file, "a") as fle: 
+with open("results/" + experiment_name + "/metrics.txt", "w") as fle: 
+    fle.write(json.dumps(metrics, indent=2, sort_keys=True))
+
+with open("results/" + experiment_name + "/inferences.txt", "w") as fle: 
     fle.write(to_dump)
+
+with open("results/" + experiment_name + "/config.yml", "w") as fle: 
+    yaml.dump(cfg, fle)
+
 
 print(accuracy)
