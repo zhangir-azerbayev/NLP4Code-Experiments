@@ -1,9 +1,9 @@
-experiment_name: 2point7B_pass8_dev
-few_shot: 1 
-data_path: data/mathqapython_dev.json 
-model_path: 0 # Set to 0 if doing few shot 
-param_count: 2.7B #125M, 1.3B, or 2.7B
-device: cuda:0 
-pass_at: 8
+experiment_name: 10instances_0
+few_shot: 0
+data_path: data/mathqapython_train.json 
+model_path: train_results/10instances_0/checkpoint-3125 # Set to 0 if doing few shot 
+param_count: 125M #125M, 1.3B, or 2.7B
+device: cuda:1 
+pass_at: 5
 temp: 0.2
 

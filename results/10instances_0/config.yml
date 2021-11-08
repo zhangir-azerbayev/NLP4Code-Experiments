@@ -1,0 +1,8 @@
+data_path: data/mathqapython_train.json
+device: cuda:1
+experiment_name: 10instances_0
+few_shot: 0
+model_path: train_results/10instances_0/checkpoint-3125
+param_count: 125M
+pass_at: 5
+temp: 0.2

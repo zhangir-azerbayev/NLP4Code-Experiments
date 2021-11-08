@@ -4,6 +4,7 @@ import random
 import yaml
 import json
 import os
+import itertools
 from tqdm import tqdm 
 random.seed(1)
 
@@ -47,7 +48,7 @@ max_prompt_length = 1387 # not currently in use
 
 # Load data 
 print("loading data")
-raw_data = read_mathqapython(data_path)
+raw_data = read_mathqapython(data_path)[:10]
 if few_shot == 1: 
     raw_train_data = read_mathqapython('data/mathqapython_train.json')
     train_size = len(raw_train_data)
@@ -106,14 +107,15 @@ for batch in tqdm(loader):
     # Generate outputs
     # Setting max_new_tokens=256 captures all but ~10 training examples
     full_ids = torch.cat([encoded_few_shot_prompt, input_ids], axis=1).to(device)
-    generated_ids = model.generate(
-        input_ids=full_ids.long(), 
-        do_sample=True, 
-        temperature=temp, 
-        max_new_tokens=256, 
-        pad_token_id=tokenizer.eos_token_id, 
-        num_return_sequences=pass_at
-    )
+    with torch.no_grad(): 
+        generated_ids = model.generate(
+            input_ids=full_ids.long(), 
+            do_sample=True, 
+            temperature=temp, 
+            max_new_tokens=256, 
+            pad_token_id=tokenizer.eos_token_id, 
+            num_return_sequences=pass_at
+        )
 
     # Does pass@k
     correct_per_sample = 0 

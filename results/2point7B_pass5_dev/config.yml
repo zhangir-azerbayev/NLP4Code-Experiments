@@ -1,0 +1,8 @@
+data_path: data/mathqapython_dev.json
+device: cuda:0
+experiment_name: 2point7B_pass5_dev
+few_shot: 1
+model_path: 0
+param_count: 2.7B
+pass_at: 5
+temp: 0.2

@@ -19,15 +19,15 @@ class MathQAPython(torch.utils.data.Dataset):
 
     def __getitem__(self, idx): 
         instance = self.data[idx]
-        text = instance['text']
-        code = instance['code']
+        text = instance['text'] 
+        code = instance['code'] 
         answer = instance['answer']
 
         text_encode = self.tokenizer(text, 
-                max_length=self.max_length, truncation=True
+                max_length=self.max_length, truncation=True, 
                 padding='max_length', return_tensors='pt')
         code_encode = self.tokenizer(code, 
-                max_length=self.max_length, truncation=True
+                max_length=self.max_length, truncation=True, 
                 padding='max_length', return_tensors='pt')
         text_ids = text_encode['input_ids'].squeeze()
         text_attn = text_encode['attention_mask'].squeeze()
