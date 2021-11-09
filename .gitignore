@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+# Model weights
+*.pt 
+*.bin
+
 # Distribution / packaging
 .Python
 build/
