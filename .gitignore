@@ -10,6 +10,9 @@ __pycache__/
 *.pt 
 *.bin
 
+# Scratch file 
+scratch.py
+
 # Distribution / packaging
 .Python
 build/
