@@ -1,0 +1,8 @@
+data_path: data/mathqapython_train.json
+device: cuda:7
+experiment_name: overfit1_512context
+few_shot: 0
+model_path: train_results/overfit1/checkpoint-4170
+param_count: 125M
+pass_at: 5
+temp: 0.2

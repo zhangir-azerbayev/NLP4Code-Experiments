@@ -43,7 +43,7 @@ model_name = "EleutherAI/gpt-neo-{}".format(param_count)
 
 # maximum token length of text/code, and few_shot_prompt
 # max_length = 256 works for almost everything 
-max_length = 256
+max_length = 512
 max_prompt_length = 1387 # not currently in use
 
 # Load data 
@@ -109,7 +109,7 @@ for batch in tqdm(loader):
     
     for sample in generated_ids: 
         completion = tokenizer.decode(sample[start_idx:], skip_special_tokens=True)
-        answer_locs = re.search('answer.*?\n', completion)
+        answer_locs = re.search('^answer.*?\n', completion)
         if answer_locs: 
             program = completion[:answer_locs.span()[1]]
         else: 
