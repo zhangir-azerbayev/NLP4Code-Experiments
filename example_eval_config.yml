@@ -1,9 +1,9 @@
-experiment_name: 10instances_0
+experiment_name: overfit1
 few_shot: 0
 data_path: data/mathqapython_train.json 
-model_path: train_results/10instances_0/checkpoint-3125 # Set to 0 if doing few shot 
+model_path: train_results/overfit1/checkpoint-4170 # Set to 0 if doing few shot 
 param_count: 125M #125M, 1.3B, or 2.7B
-device: cuda:1 
+device: cuda:0
 pass_at: 5
 temp: 0.2
 
