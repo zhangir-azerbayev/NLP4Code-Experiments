@@ -73,7 +73,7 @@ num_correct = 0
 no_errors = 0 
 sum_passk = 0 
 for batch in tqdm(loader): 
-    input_ids, mask, code_sol, answer_sol = batch 
+    input_ids, code_sol, mask, answer_sol = batch 
 
     # Removes padding tokens 
     input_ids = torch.unsqueeze(input_ids[~(input_ids==tokenizer.eos_token_id)], 0)
@@ -87,22 +87,6 @@ for batch in tqdm(loader):
             raw_train_data[idx]['code'] for idx in idxs]) + "\n\n"
         encoded_few_shot_prompt = tokenizer.encode(few_shot_prompt, 
                 return_tensors="pt")
-    
-    # comment previous and uncomment this block to make 
-    # maximally long few-shot prompts
-    # 
-    # if few_shot == 1: 
-    #     while True: 
-    #         idx = random.randrange(train_size) 
-    #         example = "\n".join([raw_train_data[idx]['text'], 
-    #             raw_train_data[idx]['code']]) + "\n\n"
-    #         tokenized_example = tokenizer(example, return_tensors="pt")['input_ids']
-    #         longer_encoded_few_shot_prompt = torch.cat([encoded_few_shot_prompt, 
-    #             tokenized_example], axis=1)
-    #         if torch.numel(longer_encoded_few_shot_prompt) <= max_prompt_length:
-    #             encoded_few_shot_prompt = longer_encoded_few_shot_prompt
-    #         else: 
-    #             break 
     
     # Generate outputs
     # Setting max_new_tokens=256 captures all but ~10 training examples
@@ -124,7 +108,7 @@ for batch in tqdm(loader):
     
     
     for sample in generated_ids: 
-        completion = tokenizer.decode(sample[start_idx:])
+        completion = tokenizer.decode(sample[start_idx:], skip_special_tokens=True)
         answer_locs = re.search('answer.*?\n', completion)
         if answer_locs: 
             program = completion[:answer_locs.span()[1]]
@@ -158,7 +142,7 @@ for batch in tqdm(loader):
     to_dump += tokenizer.decode(code_sol.squeeze(), skip_special_tokens=True)
     to_dump += "\n\nANSWER: " + str(answer_to_save) + "\n"
     to_dump += "\nLABEL ANSWER: " + str(answer_sol.item()) 
-    to_dump += "\n\nPASS@K: " + str(float(correct_per_sample)/pass_at) + "\n"
+    to_dump += "\n\nPASS@1: " + str(float(correct_per_sample)/pass_at) + "\n"
 
 
 
@@ -168,9 +152,9 @@ execution_rate = no_errors / (len(data)*pass_at)
 avg_passk = sum_passk/len(data)
 
 metrics = {
-        "accuracy": accuracy, 
+        "pass@k": accuracy, 
         "execution_rate": execution_rate, 
-        "avg_pass@k": avg_passk
+        "avg_pass@1": avg_passk
         }
 
 with open("results/" + experiment_name + "/metrics.txt", "w") as fle: 
