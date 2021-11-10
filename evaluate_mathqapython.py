@@ -48,7 +48,7 @@ max_prompt_length = 1387 # not currently in use
 
 # Load data 
 print("loading data")
-raw_data = read_mathqapython(data_path)[:10]
+raw_data = read_mathqapython(data_path)
 if few_shot == 1: 
     raw_train_data = read_mathqapython('data/mathqapython_train.json')
     train_size = len(raw_train_data)

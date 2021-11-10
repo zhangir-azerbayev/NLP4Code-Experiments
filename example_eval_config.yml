@@ -1,7 +1,7 @@
-experiment_name: overfit1_512context
+experiment_name: 125M_finetuned 
 few_shot: 0
-data_path: data/mathqapython_train.json 
-model_path: train_results/overfit1/checkpoint-4170 # Set to 0 if doing few shot 
+data_path: data/mathqapython_dev.json 
+model_path: train_results/125M_finetuned/checkpoint-8010 # Set to 0 if doing few shot 
 param_count: 125M #125M, 1.3B, or 2.7B
 device: cuda:7
 pass_at: 5

@@ -9,7 +9,6 @@ name = sys.argv[1]
 
 print('loading data and configuring tokenizer')
 data = read_mathqapython('data/mathqapython_train.json')
-data = data[:10]*1000
 
 tokenizer = GPT2Tokenizer.from_pretrained("EleutherAI/gpt-neo-125M")
 tokenizer.pad_token = tokenizer.eos_token 
@@ -23,12 +22,12 @@ model = GPTNeoForCausalLM.from_pretrained("EleutherAI/gpt-neo-125M")
 print('initializing training')
 
 training_args = TrainingArguments(output_dir="./train_results/{}".format(name),
-                                  num_train_epochs=5,
-                                  per_device_train_batch_size=12, 
+                                  num_train_epochs=10,
+                                  per_device_train_batch_size=3, 
                                   logging_strategy="epoch",
                                   save_strategy="epoch",
-                                  weight_decay=0.00,
-                                  warmup_steps = 0, 
+                                  weight_decay=0.01,
+                                  warmup_steps = 100, 
                                   logging_dir="./train_results/{}/log".format(name)
                                   )
 

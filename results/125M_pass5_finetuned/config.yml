@@ -1,8 +1,0 @@
-data_path: data/mathqapython_dev.json
-device: cuda:7
-experiment_name: 125M_pass5_finetuned
-few_shot: 0
-model_path: train_results/checkpoint-6005
-param_count: 125M
-pass_at: 5
-temp: 0.2

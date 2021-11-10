@@ -1,5 +1,0 @@
-{
-  "avg_pass@1": 0.9,
-  "execution_rate": 0.9,
-  "pass@k": 0.9
-}

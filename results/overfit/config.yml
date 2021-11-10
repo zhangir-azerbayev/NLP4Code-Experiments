@@ -1,8 +1,0 @@
-data_path: data/mathqapython_train.json
-device: cuda:0
-experiment_name: overfit
-few_shot: 0
-model_path: train_results/overfit/checkpoint-625
-param_count: 125M
-pass_at: 5
-temp: 0.2
