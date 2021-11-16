@@ -34,6 +34,7 @@ model_path = cfg['model_path']
 param_count = cfg['param_count']
 device = cfg['device']
 pass_at = cfg['pass_at']
+batch_size = cfg['batch_size']
 temp = cfg['temp']
 
 os.mkdir("results/" + experiment_name)
@@ -91,15 +92,21 @@ for batch in tqdm(loader):
     # Generate outputs
     # Setting max_new_tokens=256 captures all but ~10 training examples
     full_ids = torch.cat([encoded_few_shot_prompt, input_ids], axis=1).to(device)
+    generated_ids = None
     with torch.no_grad(): 
-        generated_ids = model.generate(
-            input_ids=full_ids.long(), 
-            do_sample=True, 
-            temperature=temp, 
-            max_new_tokens=256, 
-            pad_token_id=tokenizer.eos_token_id, 
-            num_return_sequences=pass_at
-        )
+        for _ in range(pass_at//batch_size): 
+            out =  model.generate(
+                input_ids=full_ids.long(), 
+                do_sample=True, 
+                temperature=temp, 
+                max_new_tokens=256, 
+                pad_token_id=tokenizer.eos_token_id, 
+                num_return_sequences=batch_size
+            )
+            if generated_ids is not None: 
+                generated_ids = torch.cat([generated_ids, out], axis=0)
+            else: 
+                generated_ids = out 
 
     # Does pass@k
     correct_per_sample = 0 
