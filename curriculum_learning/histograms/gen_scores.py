@@ -1,3 +1,6 @@
+import sys
+import os 
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from score import LenScore, OperationScore, UniqueOperationScore
 import re
 import json
@@ -15,7 +18,6 @@ def read_inferences(path):
         print('starting while loop')
         i = 0 
         while i < len(lines): 
-            print(i)
             if re.search("LABEL COMPLETION:", lines[i]): 
                 i+=2
                 program = ""
@@ -45,7 +47,7 @@ def read_inferences(path):
     return instance_list 
 
 # Script 
-instance_list = read_inferences("../results/125M_finetuned/inferences.txt")
+instance_list = read_inferences("../../results/125M_finetuned/inferences.txt")
 
 lenscore = LenScore() 
 opscore = OperationScore()
