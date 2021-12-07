@@ -88,3 +88,30 @@ class UniqueOperationScore(Score):
     
     def sort(self, instance_list):
         return sorted(instance_list, key=self.score)
+
+
+class BetterLenScore(Score):
+    def __init__(self):
+        pass
+
+    def score(self, instance):
+        # tokenize differently, in the same way as the operation score
+        soln = instance["code"]
+        # handle exceptional cases 
+        soln = re.sub(r'\*\*',' \*\* ', soln)
+        soln = re.sub(r',', ' ', soln)
+        soln = re.sub(r'_',' ', soln)
+        soln = re.sub(r'#',' ', soln)
+        soln = re.sub(r'e-','', soln)
+
+        # now tokenize
+        tokens = re.split(r'\s|\(|\)', soln)
+
+        # filter out extraneous empty strings
+        tokens = [token for token in tokens if token != '']
+
+        return len(tokens)
+    
+    def sort(self, instance_list):
+        return sorted(instance_list, key=self.score)
+
