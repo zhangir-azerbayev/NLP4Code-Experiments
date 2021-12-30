@@ -7,6 +7,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from transformers import GPTNeoForCausalLM, GPT2Tokenizer
 from transformers import TrainingArguments, Trainer 
+from transformers.integrations import TensorBoardCallback
 
 from dataloader import read_mathqapython, MathQAPython
 
