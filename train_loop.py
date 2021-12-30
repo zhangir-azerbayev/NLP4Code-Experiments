@@ -1,5 +1,10 @@
 import sys 
+import os
+os.environ["CUDA_VISIBLE_DEVICES"]="0"
+
 import torch 
+from torch.utils.tensorboard import SummaryWriter 
+
 from transformers import GPTNeoForCausalLM, GPT2Tokenizer
 from transformers import TrainingArguments, Trainer 
 
@@ -22,13 +27,12 @@ model = GPTNeoForCausalLM.from_pretrained("EleutherAI/gpt-neo-125M")
 print('initializing training')
 
 training_args = TrainingArguments(output_dir="./train_results/{}".format(name),
-                                  num_train_epochs=10,
-                                  per_device_train_batch_size=3, 
+                                  num_train_epochs=50,
+                                  per_device_train_batch_size=16, 
                                   logging_strategy="epoch",
                                   save_strategy="epoch",
                                   weight_decay=0.01,
                                   warmup_steps = 100, 
-                                  logging_dir="./train_results/{}/log".format(name)
                                   )
 
 def data_collator(data):
@@ -37,5 +41,8 @@ def data_collator(data):
             'labels': torch.stack([f[1] for f in data])
            }
 
+tb_writer = SummaryWriter(log_dir="./train_results/{}/tb_log".format(name))
+tb_callback = TensorBoardCallback(tb_writer)
+
 Trainer(model=model, args=training_args, train_dataset=train_set, 
-        data_collator=data_collator).train()
+        data_collator=data_collator, callbacks=[tb_callback]).train()
