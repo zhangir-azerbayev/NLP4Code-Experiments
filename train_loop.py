@@ -18,7 +18,7 @@ data = read_mathqapython('data/mathqapython_train.json')
 
 tokenizer = GPT2Tokenizer.from_pretrained("EleutherAI/gpt-neo-125M")
 tokenizer.pad_token = tokenizer.eos_token 
-max_length = 512
+max_length = 450
 
 train_set = MathQAPython(data, tokenizer, max_length)
 
