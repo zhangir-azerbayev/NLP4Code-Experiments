@@ -9,6 +9,7 @@ __pycache__/
 # Model weights
 *.pt 
 *.bin
+*.pth
 
 # Scratch file 
 scratch.py
